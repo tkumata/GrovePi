@@ -20,6 +20,16 @@ dpkg-query -W -f='${Package} ${Version} ${Status}\n' python-smbus #>> error_log.
 dpkg-query -W -f='${Package} ${Version} ${Status}\n' arduino #>> error_log.txt
 dpkg-query -W -f='${Package} ${Version} ${Status}\n' minicom #>> error_log.txt
 dpkg-query -W -f='${Package} ${Version} ${Status}\n' scratch #>> error_log.txt
+pip_grovepi_version_str="$(pip freeze | grep grovepi)"
+if [ "$pip_grovepi_version_str" = "grovepi==0.0.0" ]; then
+    temp="$(echo $pip_grovepi_version_str | sed 's/==/ /')"
+    echo "$temp install ok installed"
+else
+    echo "grovepi ng"
+    sudo pip uninstall -y grovepi
+    cd /home/pi/Desktop/GrovePi/Software/Python/
+    sudo python /home/pi/Desktop/GrovePi/Software/Python/setup.py install
+fi
 echo "" #>>error_log.txt
 
 #Check for wiringPi
@@ -28,13 +38,6 @@ then
   echo "wiringPi Found" #>>error_log.txt
 else
   echo "wiringPi Not Found (ERR)" #>>error_log.txt
-fi
-
-if [[ -n $(find / -name 'wiringPi') ]]
-then
-  echo "wiringPi Found" #>>error_log.txt
-else
-  echo "wiringPi Not Found (ERR)"#>>error_log.txt
 fi
 
 #Check for changes in blacklist
