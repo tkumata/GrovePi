@@ -41,12 +41,10 @@ THE SOFTWARE.
 # Last Updated: 01 June 2015
 # http://www.dexterindustries.com/
 
-import smbus
+import sys
 import time
 import math
-import RPi.GPIO as GPIO
 import struct
-import sys
 
 debug =0
 
@@ -55,11 +53,17 @@ if sys.version_info<(3,0):
 else:
 	p_version=3
 
-rev = GPIO.RPI_REVISION
-if rev == 2 or rev == 3:
+if sys.platform == 'uwp':
+	import winrt_smbus as smbus
 	bus = smbus.SMBus(1)
 else:
-	bus = smbus.SMBus(0)
+	import smbus
+	import RPi.GPIO as GPIO
+	rev = GPIO.RPI_REVISION
+	if rev == 2 or rev == 3:
+		bus = smbus.SMBus(1)
+	else:
+		bus = smbus.SMBus(0)
 
 # I2C Address of Arduino
 address = 0x04
@@ -293,9 +297,9 @@ def dht(pin, module_type):
 		number = read_i2c_block(address)
 		time.sleep(.1)
 		if number == -1:
-			return -1
+			return [-1,-1]
 	except (TypeError, IndexError):
-		return -1
+		return [-1,-1]
 	# data returned in IEEE format as a float in 4 bytes
 	
 	if p_version==2:
